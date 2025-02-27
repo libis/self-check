@@ -1,5 +1,5 @@
 /* CONSTANTS */
-var baseURL = "https://services.libis.be/self-check";
+var baseURL = "https://services.libis.be";
 
 var libraryName = "RBIB";
 var circDesk = "DEFAULT_CIRC_DESK";
