@@ -74,7 +74,7 @@ function login() {
         
         $.ajax({
             type: "GET",
-            url: baseURL + "/almaws/v1/users/" + $("#userid").val() + "?apikey=" + "apiKey" + "&expand=loans,requests,fees&format=json",
+            url: baseURL + "/almaws/v1/users/" + $("#userid").val() + "?apikey=" + API_KEY + "&expand=loans,requests,fees&format=json",
             contentType: "text/plain",
             dataType: "json",
             crossDomain: true
@@ -94,7 +94,7 @@ function login() {
             // Fetch loan details
             $.ajax({
                 type: "GET",
-                url: data.loans.link + "?apikey=" + "apikey",
+                url: data.loans.link + "?apikey=" + API_KEY,
                 contentType: "text/plain",
                 dataType: "json",
                 crossDomain: true
@@ -143,7 +143,7 @@ function loan() {
     	$.ajax({
     		type: "POST",
     		// url: baseURL + "/almaws/v1/users/" + user.primary_id + "/loans?user_id_type=all_unique&item_barcode=" + $("#barcode").val(),
-    		url: baseURL + "almaws/v1/users/" + user.primary_id + "/loans?user_id_type=all_unique&item_barcode=" + $("#barcode").val() + "&apikey=" + 'apiKey',
+    		url: baseURL + "almaws/v1/users/" + user.primary_id + "/loans?user_id_type=all_unique&item_barcode=" + $("#barcode").val() + "&apikey=" + API_KEY,
     		contentType: "application/xml",
     		data: "<?xml version='1.0' encoding='UTF-8'?><item_loan><circ_desk>" + circDesk + "</circ_desk><library>" + libraryName + "</library></item_loan>",
     		dataType: "xml"
