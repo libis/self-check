@@ -27,11 +27,11 @@
 			<div class="h1title">Self-Check Service</div>
 			<br/><br/>
 			<div class="databox">
-				<div class="h2title">Please scan or type your ID:</div>
+				<div class="h2title">Please scan your user card ID:</div>
 				<div>
 					<div class="hide errormessage" id="loginerror">Inccorect ID, please try again<br/></div>
 					<input type="text" id="userid" placeholder="ID..."  />
-					<br/><br/>
+					<br/><br/>   
 					<input type="button" value="Submit" onclick="javascript:login();"/>
 				</div>
 			</div>
@@ -48,12 +48,12 @@
 							<td><span class="headertablekey">Requests:</span>&nbsp;<span class="headertablevalue" id="userrequests"></span></td>
 							<td><span class="headertablekey">Fines & Fees:</span>&nbsp;<span class="headertablevalue" id="userfees"></span></td>
 							<!-- <td><span class="headertablekey">Notes:</span>&nbsp;<span class="headertablevalue" id="usernotes"></span></td> -->
-							<td><input type="button" value="Logout" onclick="javascript:logout();"/></td>
+							<td><input type="button" value="End session" onclick="javascript:logout();"/></td>
 						</tr>
 					</table>
 				</div>
 				<br/><br/>
-				<div class="h2title">Please scan or type your next item:</div>
+				<div class="h2title">Please scan the item barcode</div>
 				<div>
 					<input type="text" id="barcode" placeholder="Barcode..." autofocus/>
 				</div>

@@ -1,9 +1,7 @@
-/* CONSTANTS */
-var baseURL = "https://services.libis.be";
 
+var baseURL = "https://services.t.libis.be";
 var libraryName = "RBIB";
 var circDesk = "DEFAULT_CIRC_DESK";
-
 
 function initiate() {
 	getModalBox();
@@ -66,46 +64,64 @@ function returnToBarcode() {
 function login() {
     var loginid = $("#userid").val();
     if ((loginid != null) && (loginid != "")) {
-    	
-    	$("#userid").prop("disabled", true);
-    	$("#loginerror").addClass("hide");
-    	
-    	$("#modalheader").text("loading data, please wait...");
+        
+        $("#userid").prop("disabled", true);
+        $("#loginerror").addClass("hide");
+        
+        $("#modalheader").text("loading data, please wait...");
         $("#myModal").show();
         $(".close").hide();
         
         $.ajax({
-    		type: "GET",
-    		url: baseURL + "almaws/v1/users/" + $("#userid").val() + "?expand=loans,requests,fees&format=json",
-			contentType: "text/plain",
-			dataType : "json",
-			crossDomain: true
-			
-		}).done(function(data) {
-			user = data;
-			
-			// prepare scan box
-			$("#scanboxtitle").text("Welcome " + data.first_name + " " + data.last_name);
-			$("#userloans").text(data.loans.value);
-			$("#userrequests").text(data.requests.value);
-			$("#userfees").text("€ " + data.fees.value);
-			//$("#usernotes").text(data.user_note.length);
-			
-			 $("#loanstable").find("tr:gt(0)").remove();
-			
-			$("#loginbox").addClass("hide");
-			$("#scanbox").toggleClass("hide");
-			
-			$("#barcode").focus();
-			
-		}).fail(function(jqxhr, textStatus, error) {
-		    $("#loginerror").toggleClass("hide");
-		    console.log(jqxhr.responseText);
-		    
-		}).always(function() {
-			$("#userid").prop("disabled", false);
-		    $("#myModal").hide();
-		});
+            type: "GET",
+            url: baseURL + "/almaws/v1/users/" + $("#userid").val() + "?apikey=" + API_KEY + "&expand=loans,requests,fees&format=json",
+            contentType: "text/plain",
+            dataType: "json",
+            crossDomain: true
+            
+        }).done(function(data) {
+            user = data;
+            console.log("data:", data);
+
+            // Prepare scan box
+            $("#scanboxtitle").text("Welcome " + data.first_name + " " + data.last_name);
+            $("#userloans").text(data.loans.value);
+            $("#userrequests").text(data.requests.value);
+            $("#userfees").text("€ " + data.fees.value);
+            
+            $("#loanstable").find("tr:gt(0)").remove();
+            
+            // Fetch loan details
+            $.ajax({
+                type: "GET",
+                url: data.loans.link + "?apikey=" + API_KEY,
+                contentType: "text/plain",
+                dataType: "json",
+                crossDomain: true
+            }).done(function(loanData) {
+                // Iterate through loans and append to table
+                loanData.item_loan.forEach(function(loan) {
+                    var dueDate = new Date(loan.due_date);
+                    var dueDateText = (dueDate.getMonth() + 1) + "/" + dueDate.getDate() + "/" + dueDate.getFullYear();
+                    $("#loanstable").append("<tr><td>" + loan.title + "</td><td>" + dueDateText + "</td><td><button onclick='renewLoan(\"" + loan.loan_id + "\")'>RENEW</button></td></tr>");
+                });
+            }).fail(function(jqxhr, textStatus, error) {
+                console.log(jqxhr.responseText);
+            });
+
+            $("#loginbox").addClass("hide");
+            $("#scanbox").toggleClass("hide");
+            
+            $("#barcode").focus();
+            
+        }).fail(function(jqxhr, textStatus, error) {
+            $("#loginerror").toggleClass("hide");
+            console.log(jqxhr.responseText);
+            
+        }).always(function() {
+            $("#userid").prop("disabled", false);
+            $("#myModal").hide();
+        });
     }
 }
 
@@ -126,7 +142,8 @@ function loan() {
 
     	$.ajax({
     		type: "POST",
-    		url: baseURL + "almaws/v1/users/" + user.primary_id + "/loans?user_id_type=all_unique&item_barcode=" + $("#barcode").val(),
+    		// url: baseURL + "/almaws/v1/users/" + user.primary_id + "/loans?user_id_type=all_unique&item_barcode=" + $("#barcode").val(),
+    		url: baseURL + "almaws/v1/users/" + user.primary_id + "/loans?user_id_type=all_unique&item_barcode=" + $("#barcode").val() + "&apikey=" + API_KEY,
     		contentType: "application/xml",
     		data: "<?xml version='1.0' encoding='UTF-8'?><item_loan><circ_desk>" + circDesk + "</circ_desk><library>" + libraryName + "</library></item_loan>",
     		dataType: "xml"
@@ -155,6 +172,31 @@ function loan() {
     	
     }
 } 
+function renewLoan(loanId) {
+    console.log( "'loanId'" ,loanId)
+    const userId = user.primary_id;
+
+    $("#modalheader").text("processing renewal, please wait...");
+    $("#myModal").show();
+    $(".close").hide();
+
+    $.ajax({
+        type: "POST",
+        url: baseURL + "/almaws/v1/users/" + userId + "/loans/" + loanId + "?apikey=" + API_KEY,
+        contentType: "application/xml",
+        data: "<?xml version='1.0' encoding='UTF-8'?><renew_loan><circ_desk>" + circDesk + "</circ_desk><library>" + libraryName + "</library></renew_loan>",
+        dataType: "xml"
+    }).done(function(data) {
+        var dueDate = new Date($(data).find("due_date").text());
+        var dueDateText = (parseInt(dueDate.getMonth()) + 1) + "/" + dueDate.getDate() + "/" + dueDate.getFullYear();
+        alert('Loan renewed successfully! New due date: ' + dueDateText);
+        $("#myModal").hide();
+    }).fail(function(error) {
+        console.error('Error:', error);
+        alert('Failed to renew loan');
+        $("#myModal").hide();
+    });
+}
 
 function logout() {
 	$("#userid").val("");
