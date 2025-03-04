@@ -103,7 +103,7 @@ function login() {
                 loanData.item_loan.forEach(function(loan) {
                     var dueDate = new Date(loan.due_date);
                     var dueDateText = (dueDate.getMonth() + 1) + "/" + dueDate.getDate() + "/" + dueDate.getFullYear();
-                    $("#loanstable").append("<tr><td>" + loan.title + "</td><td>" + dueDateText + "</td></tr>");
+                    $("#loanstable").append("<tr><td>" + loan.title + "</td><td>" + dueDateText + "</td><td><button onclick='renewLoan(\"" + loan.loan_id + "\")'>RENEW</button></td></tr>");
                 });
             }).fail(function(jqxhr, textStatus, error) {
                 console.log(jqxhr.responseText);
@@ -172,6 +172,31 @@ function loan() {
     	
     }
 } 
+function renewLoan(loanId) {
+    console.log( "'loanId'" ,loanId)
+    const userId = user.primary_id;
+
+    $("#modalheader").text("processing renewal, please wait...");
+    $("#myModal").show();
+    $(".close").hide();
+
+    $.ajax({
+        type: "POST",
+        url: baseURL + "/almaws/v1/users/" + userId + "/loans/" + loanId + "?apikey=" + API_KEY,
+        contentType: "application/xml",
+        data: "<?xml version='1.0' encoding='UTF-8'?><renew_loan><circ_desk>" + circDesk + "</circ_desk><library>" + libraryName + "</library></renew_loan>",
+        dataType: "xml"
+    }).done(function(data) {
+        var dueDate = new Date($(data).find("due_date").text());
+        var dueDateText = (parseInt(dueDate.getMonth()) + 1) + "/" + dueDate.getDate() + "/" + dueDate.getFullYear();
+        alert('Loan renewed successfully! New due date: ' + dueDateText);
+        $("#myModal").hide();
+    }).fail(function(error) {
+        console.error('Error:', error);
+        alert('Failed to renew loan');
+        $("#myModal").hide();
+    });
+}
 
 function logout() {
 	$("#userid").val("");
