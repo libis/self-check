@@ -151,7 +151,7 @@ function loan() {
     		
     		var dueDate = new Date($(data).find("due_date").text());
     		var dueDateText = (parseInt(dueDate.getMonth()) + 1) + "/" + dueDate.getDate() + "/" + dueDate.getFullYear();
-    		$("#loanstable").append("<tr><td>" + $(data).find("title").text() + "</td><td>" + dueDateText + "</td></tr>");
+    		$("#loanstable").append("<tr id='loan-" + loan.loan_id + "'><td>" + $(data).find("title").text() + "</td><td>" + dueDateText + "</td></tr>");
     		
     		returnToBarcode();
     		
@@ -182,14 +182,14 @@ function renewLoan(loanId) {
 
     $.ajax({
         type: "POST",
-        url: baseURL + "/almaws/v1/users/" + userId + "/loans/" + loanId + "?apikey=" + API_KEY,
+        url: baseURL + "/almaws/v1/users/" + userId + "/loans/" + loanId + "?apikey=" + API_KEY + "&op=renew",
         contentType: "application/xml",
         data: "<?xml version='1.0' encoding='UTF-8'?><renew_loan><circ_desk>" + circDesk + "</circ_desk><library>" + libraryName + "</library></renew_loan>",
         dataType: "xml"
     }).done(function(data) {
         var dueDate = new Date($(data).find("due_date").text());
         var dueDateText = (parseInt(dueDate.getMonth()) + 1) + "/" + dueDate.getDate() + "/" + dueDate.getFullYear();
-        alert('Loan renewed successfully! New due date: ' + dueDateText);
+        $("#loan-" + loanId).find(".due-date").text(dueDateText);
         $("#myModal").hide();
     }).fail(function(error) {
         console.error('Error:', error);
