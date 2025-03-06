@@ -206,6 +206,13 @@ textarea {
 	padding: 0px 10px 0px 10px;
 	font-size: 90%;
 }
+.maincontent .loanstable button {
+    background-color: transparent;
+    border: none;
+	color: #0000cc; 
+    font-weight: 700;
+    cursor: pointer;
+}
 
 /* The Modal (background) */
 .modal {
