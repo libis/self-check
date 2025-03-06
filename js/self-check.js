@@ -106,7 +106,7 @@ function login() {
         
         $.ajax({
             type: "GET",
-            url: baseURL + "/almaws/v1/users/" + $("#userid").val() + "?apikey=" + API_KEY + "&expand=loans,requests,fees&format=json",
+            url: baseURL + "/almaws/v1/users/" + $("#userid").val() + "&expand=loans,requests,fees&format=json",
             contentType: "text/plain",
             dataType: "json",
             crossDomain: true
@@ -124,7 +124,7 @@ function login() {
             // Fetch loan details
             $.ajax({
                 type: "GET",
-                url: data.loans.link + "?apikey=" + API_KEY,
+                url: data.loans.link ,
                 contentType: "text/plain",
                 dataType: "json",
                 crossDomain: true
@@ -173,8 +173,7 @@ function loan() {
 
     	$.ajax({
     		type: "POST",
-    		// url: baseURL + "/almaws/v1/users/" + user.primary_id + "/loans?user_id_type=all_unique&item_barcode=" + $("#barcode").val(),
-    		url: baseURL + "almaws/v1/users/" + user.primary_id + "/loans?user_id_type=all_unique&item_barcode=" + $("#barcode").val() + "&apikey=" + API_KEY,
+    		url: baseURL + "/almaws/v1/users/" + user.primary_id + "/loans?user_id_type=all_unique&item_barcode=" + $("#barcode").val(),
     		contentType: "application/xml",
     		data: "<?xml version='1.0' encoding='UTF-8'?><item_loan><circ_desk>" + circDesk + "</circ_desk><library>" + libraryName + "</library></item_loan>",
     		dataType: "xml"
@@ -207,7 +206,7 @@ function renewLoan(loanId) {
     $(".close").hide();
     $.ajax({
         type: "POST",
-        url: baseURL + "/almaws/v1/users/" + userId + "/loans/" + loanId + "?apikey=" + API_KEY + "&op=renew",
+        url: baseURL + "/almaws/v1/users/" + userId + "/loans/" + loanId + "&op=renew",
         contentType: "application/xml",
         data: "<?xml version='1.0' encoding='UTF-8'?><renew_loan><circ_desk>" + circDesk + "</circ_desk><library>" + libraryName + "</library></renew_loan>",
         dataType: "xml"
@@ -217,7 +216,7 @@ function renewLoan(loanId) {
         // Make a new GET request to fetch the updated loan data to fix bug of not seeing immediatly
         $.ajax({
             type: "GET",
-            url: baseURL + "/almaws/v1/users/" + userId + "/loans/" + loanId + "?apikey=" + API_KEY,
+            url: baseURL + "/almaws/v1/users/" + userId + "/loans/" + loanId,
             contentType: "application/json",
             dataType: "json"
         }).done(function(updatedLoanData) {
