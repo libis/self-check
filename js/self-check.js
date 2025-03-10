@@ -106,7 +106,7 @@ function login() {
         
         $.ajax({
             type: "GET",
-            url: baseURL + "/almaws/v1/users/" + $("#userid").val() + "&expand=loans,requests,fees&format=json",
+            url: baseURL + "/almaws/v1/users/" + $("#userid").val() + "?expand=loans,requests,fees&format=json",
             contentType: "text/plain",
             dataType: "json",
             crossDomain: true
@@ -206,7 +206,7 @@ function renewLoan(loanId) {
     $(".close").hide();
     $.ajax({
         type: "POST",
-        url: baseURL + "/almaws/v1/users/" + userId + "/loans/" + loanId + "&op=renew",
+        url: baseURL + "/almaws/v1/users/" + userId + "/loans/" + loanId + "?op=renew",
         contentType: "application/xml",
         data: "<?xml version='1.0' encoding='UTF-8'?><renew_loan><circ_desk>" + circDesk + "</circ_desk><library>" + libraryName + "</library></renew_loan>",
         dataType: "xml"
