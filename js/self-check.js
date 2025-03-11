@@ -3,7 +3,6 @@ var baseURL = "https://services.t.libis.be";
 var libraryName = "RBIB";
 var circDesk = "DEFAULT_CIRC_DESK";
 
-var isLoggedIn = false; // Flag to track login state
 
 function initiate() {
 	getModalBox();
@@ -26,7 +25,8 @@ function initiate() {
 
 var modal;
 var span;
-var user;
+var user = null; // User data to track login state
+
 
 function getModalBox() {
 	
@@ -79,10 +79,10 @@ var inactivityTime = function () {
 
     // Logout function
     function logoutUser() {
-        if (isLoggedIn) { // Only log out if the user is logged in
+        if (user) { // Only log out if the user is logged in
             logout();
             returnToBarcode();
-            isLoggedIn = false;
+            user = null;
         }
     }
 };
@@ -95,7 +95,6 @@ inactivityTime();
 function login() {
     var loginid = $("#userid").val();
     if ((loginid != null) && (loginid != "")) {
-        isLoggedIn = true;
         
         $("#userid").prop("disabled", true);
         $("#loginerror").addClass("hide");
@@ -241,6 +240,7 @@ function renewLoan(loanId) {
 }
 
 function logout() {
+    user = null;
 	$("#userid").val("");
 	$("#loginbox").toggleClass("hide");
 	$("#scanbox").toggleClass("hide");
