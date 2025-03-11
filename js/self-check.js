@@ -65,7 +65,7 @@ var inactivityTime = function () {
     var logoutTime = 30000; // 30 seconds
 
     function resetTimer() {
-        if (isLoggedIn) { // Only reset the timer if the user is logged in
+        if (user) { // Only reset the timer if the user is logged in
             clearTimeout(time);
             time = setTimeout(logoutUser, logoutTime);
         }
