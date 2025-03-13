@@ -213,7 +213,15 @@ textarea {
     font-weight: 700;
     cursor: pointer;
 }
+.renewed {
+    color: green;
+    font-weight: bold;
+}
 
+.not-renewable {
+    color: red;
+    font-weight: bold;
+}
 /* The Modal (background) */
 .modal {
     display: none; /* Hidden by default */
