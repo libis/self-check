@@ -1,5 +1,5 @@
 
-var baseURL = "https://services.t.libis.be";
+var baseURL = "https://services.libis.be";
 var libraryName = "RBIB";
 var circDesk = "DEFAULT_CIRC_DESK";
 
