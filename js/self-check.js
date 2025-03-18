@@ -1,5 +1,5 @@
 
-var baseURL = "https://services.t.libis.be";
+var baseURL = "https://services.libis.be";
 var libraryName = "RBIB";
 var circDesk = "DEFAULT_CIRC_DESK";
 
@@ -90,7 +90,7 @@ var inactivityTime = function () {
 // Initialize the inactivity timer
 inactivityTime();
 
-
+var renewButtonText = 'RENEW'
 /* LOGIN */
 function login() {
     var loginid = $("#userid").val();
@@ -131,8 +131,8 @@ function login() {
                 // Iterate through loans and append to table
                 loanData.item_loan.forEach(function(loan) {
                     var dueDate = new Date(loan.due_date);
-                    var dueDateText = (dueDate.getMonth() + 1) + "/" + dueDate.getDate() + "/" + dueDate.getFullYear();
-                    $("#loanstable").append("<tr id='loan-" + loan.loan_id + "'><td>" + loan.title + "</td><td>" + dueDateText + "</td><td><button onclick='renewLoan(\"" + loan.loan_id + "\")'>RENEW</button></td></tr>");
+                    var dueDateText = (dueDate.getDate() ) + "/" + (dueDate.getMonth() + 1) + "/" + dueDate.getFullYear();
+                    $("#loanstable").append("<tr id='loan-" + loan.loan_id + "'><td>" + loan.title + "</td><td>" + dueDateText + "</td><td><button onclick='renewLoan(\"" + loan.loan_id + "\")'>" + renewButtonText + "</button></td></tr>");
                     returnToBarcode();
                 });
             }).fail(function(jqxhr, textStatus, error) {
@@ -179,7 +179,7 @@ function loan() {
     	}).done(function(data){
     		
     		var dueDate = new Date($(data).find("due_date").text());
-    		var dueDateText = (parseInt(dueDate.getMonth()) + 1) + "/" + dueDate.getDate() + "/" + dueDate.getFullYear();
+    		var dueDateText = (parseInt(dueDate.getDate() + "/" + dueDate.getMonth()) + 1)  + "/" + dueDate.getFullYear();
     		$("#loanstable").append("<tr id='loan-" + loan.loan_id + "'><td>" + $(data).find("title").text() + "</td><td>" + dueDateText + "</td></tr>");
     		returnToBarcode();
     	}).fail(function(jqxhr, textStatus, error) {
@@ -210,8 +210,6 @@ function renewLoan(loanId) {
         data: "<?xml version='1.0' encoding='UTF-8'?><renew_loan><circ_desk>" + circDesk + "</circ_desk><library>" + libraryName + "</library></renew_loan>",
         dataType: "xml"
     }).done(function(data) {
-        // var dueDate = new Date($(data).find("due_date").text());
-        // var dueDateText = (parseInt(dueDate.getMonth()) + 1) + "/" + dueDate.getDate() + "/" + dueDate.getFullYear();
         // Make a new GET request to fetch the updated loan data to fix bug of not seeing immediatly
         $.ajax({
             type: "GET",
@@ -220,11 +218,23 @@ function renewLoan(loanId) {
             dataType: "json"
         }).done(function(updatedLoanData) {
             var updatedDueDate = new Date(updatedLoanData.due_date);
-            var updatedDueDateText = (updatedDueDate.getMonth() + 1) + "/" + updatedDueDate.getDate() + "/" + updatedDueDate.getFullYear();
-
+            var updatedDueDateText = `${updatedDueDate.getDate()}/${updatedDueDate.getMonth() + 1}/${updatedDueDate.getFullYear()}`;
             // Update the due date in the table
             var dueDateCell = $("#loan-" + loanId + " td:nth-child(2)");
             dueDateCell.text(updatedDueDateText);
+            
+            // if 401193 value for last renew status -> means that renewd succes, else not succes renewed for whatever reason
+            var succesfullyRenewedValueCode = '401193;'
+            var LastRenewedValueCode = updatedLoanData?.last_renew_status?.value
+
+            var renewCell = $("#loan-" + loanId + " td:nth-child(3)");
+            if(LastRenewedValueCode == succesfullyRenewedValueCode){
+                renewCell.text('RENEWED');
+                renewCell.removeClass('not-renewable').addClass('renewed');
+            } else {
+                renewCell.text('NOT RENEWABLE');
+                renewCell.removeClass('renewed').addClass('not-renewable');
+            }
             $("#myModal").hide();
         }).fail(function(error) {
             console.error('Error fetching updated loan data:', error);
