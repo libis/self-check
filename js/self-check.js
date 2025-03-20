@@ -177,11 +177,20 @@ function loan() {
     		data: "<?xml version='1.0' encoding='UTF-8'?><item_loan><circ_desk>" + circDesk + "</circ_desk><library>" + libraryName + "</library></item_loan>",
     		dataType: "xml"
     	}).done(function(data){
-    		
-    		var dueDate = new Date($(data).find("due_date").text());
-    		var dueDateText = (parseInt(dueDate.getDate() + "/" + dueDate.getMonth()) + 1)  + "/" + dueDate.getFullYear();
-    		$("#loanstable").append("<tr id='loan-" + loan.loan_id + "'><td>" + $(data).find("title").text() + "</td><td>" + dueDateText + "</td></tr>");
-    		returnToBarcode();
+    		// Extract loanId from the POST response
+            var loanId = $(data).find("loan_id").text();
+            if (!loanId) {
+                console.error('Loan ID is undefined');
+                alert('Failed to retrieve loan ID');
+                $("#myModal").hide();
+                returnToBarcode();
+                return;
+            }
+    		// var dueDate = new Date($(data).find("due_date").text());
+    		// var dueDateText = (parseInt(dueDate.getDate() + "/" + dueDate.getMonth()) + 1)  + "/" + dueDate.getFullYear();
+    		// $("#loanstable").append("<tr id='loan-" + loan.loan_id + "'><td>" + $(data).find("title").text() + "</td><td>" + dueDateText + "</td></tr>");
+    		// returnToBarcode();
+            fetchUserDetailsAndLoans();
     	}).fail(function(jqxhr, textStatus, error) {
     		console.log(jqxhr.responseText);
     		$("#modalheader").text("");
@@ -198,6 +207,45 @@ function loan() {
     	
     }
 } 
+
+function fetchUserDetailsAndLoans() {
+    $.ajax({
+        type: "GET",
+        url: baseURL + "/almaws/v1/users/" + $("#userid").val() + "?expand=loans,requests,fees&format=json",
+        contentType: "text/plain",
+        dataType: "json",
+        crossDomain: true
+    }).done(function(data) {
+        user = data;
+        $("#scanboxtitle").text("Welcome " + data.first_name + " " + data.last_name);
+        $("#userloans").text(data.loans.value);
+        $("#userrequests").text(data.requests.value);
+        $("#userfees").text("€ " + data.fees.value);
+        $("#loanstable").find("tr:gt(0)").remove();
+
+        $.ajax({
+            type: "GET",
+            url: data.loans.link,
+            contentType: "text/plain",
+            dataType: "json",
+            crossDomain: true
+        }).done(function(loanData) {
+            loanData.item_loan.forEach(function(loan) {
+                var dueDate = new Date(loan.due_date);
+                var dueDateText = `${dueDate.getDate()}/${dueDate.getMonth() + 1}/${dueDate.getFullYear()}`;
+                $("#loanstable").append("<tr id='loan-" + loan.loan_id + "'><td>" + loan.title + "</td><td>" + dueDateText + "</td><td><button onclick='renewLoan(\"" + loan.loan_id + "\")'>" + renewButtonText + "</button></td></tr>");
+                returnToBarcode();
+            });
+        }).fail(function(jqxhr, textStatus, error) {
+            console.log(jqxhr.responseText);
+        });
+
+       
+        $("#barcode").focus();
+    }).fail(function(jqxhr, textStatus, error) {
+        console.log(jqxhr.responseText);
+    });
+}
 function renewLoan(loanId) {
     const userId = user.primary_id;
     $("#modalheader").text("processing renewal, please wait...");
@@ -260,3 +308,11 @@ function logout() {
 $( document ).ready(function() {
 	  $( "#userid" ).focus();
 	});
+
+// function keepSessionActive() {
+//     setInterval(() => {
+//         console.log("Keeping the session active");
+//     }, 2 * 60 * 1000); // 2 minutes in milliseconds
+// }
+    
+// keepSessionActive();
