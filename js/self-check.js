@@ -1,4 +1,7 @@
-var baseURL = "https://services.libis.be";
+// var baseURL = "https://services.libis.be";
+var baseURL = window.location.origin;
+console.log("baseURL", baseURL);
+
 var libraryName = "RBIB";
 var circDesk = "DEFAULT_CIRC_DESK";
 
@@ -105,7 +108,7 @@ function login() {
         baseURL +
         "/almaws/v1/users/" +
         $("#userid").val() +
-        "?expand=loans,requests,fees&format=json",
+        "?expand=loans,requests,fees&format=json&limit=100", // added limit to 100 (default == 10)
       contentType: "text/plain",
       dataType: "json",
       crossDomain: true,
@@ -123,9 +126,13 @@ function login() {
         $("#loanstable").find("tr:gt(0)").remove();
 
         // Fetch loan details
+
+        let loanUrl = data.loans.link;
+        loanUrl += (loanUrl.includes("?") ? "&" : "?") + "limit=100";
+
         $.ajax({
           type: "GET",
-          url: data.loans.link,
+          url: loanUrl,
           contentType: "text/plain",
           dataType: "json",
           crossDomain: true,
@@ -245,7 +252,7 @@ function fetchUserDetailsAndLoans() {
       baseURL +
       "/almaws/v1/users/" +
       $("#userid").val() +
-      "?expand=loans,requests,fees&format=json",
+      "?expand=loans,requests,fees&format=json&limit=100",
     contentType: "text/plain",
     dataType: "json",
     crossDomain: true,
