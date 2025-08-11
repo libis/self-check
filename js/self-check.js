@@ -3,10 +3,37 @@ var baseURL = window.location.origin;
 console.log("baseURL", baseURL);
 
 var libraryName = "RBIB";
+
+// var institution = "kuleuven";
+
+// check if the pathname includes 'vlerick'
+// if (window.location.pathname.toLowerCase().includes("vlerick")) {
+//   libraryName = "VBS";
+//   institution = "vlerick";
+// }
+console.log("libraryName", libraryName);
 var circDesk = "DEFAULT_CIRC_DESK";
 
 function initiate() {
   getModalBox();
+  /////////////////////////////////////////////////////////////////////////////////////////////
+  // Add institution as a class to .toptoolbar
+  // var topToolbar = document.querySelector(".toptoolbar");
+  // if (topToolbar) {
+  //   topToolbar.className = "toptoolbar " + institution;
+  //   // or topToolbar.classList.add(institution);
+  // }
+
+  // Optional: change logo dynamically too
+  // var logoImg = document.querySelector(".logo img");
+  // if (logoImg && institution === "vlerick") {
+  //   logoImg.src = "images/vlericklogo.png";
+  // } else {
+  //   logoImg.src = "images/vlericklogo.png";
+  //   // "images/libisnewkuljr.png"; // default logo
+  // }
+
+  /////////////////////////////////////////////////////////////////////////////////////////////
 
   $("#barcode").bind("keypress", function (e) {
     var code = e.keyCode || e.which;
@@ -39,15 +66,6 @@ function getModalBox() {
   span.onclick = function () {
     $("#myModal").hide();
   };
-
-  // When the user clicks anywhere outside of the modal, close it
-  /*
-	window.onclick = function(event) {
-	    if (event.target == modal) {
-	    	$("#myModal").hide();
-	    }
-	}
-	*/
 }
 
 function returnToBarcode() {
@@ -106,6 +124,7 @@ function login() {
       type: "GET",
       url:
         baseURL +
+        // institution +
         "/almaws/v1/users/" +
         $("#userid").val() +
         "?expand=loans,requests,fees&format=json&limit=100", // added limit to 100 (default == 10)
@@ -200,6 +219,7 @@ function loan() {
       type: "POST",
       url:
         baseURL +
+        // institution +
         "/almaws/v1/users/" +
         user.primary_id +
         "/loans?user_id_type=all_unique&item_barcode=" +
@@ -250,6 +270,7 @@ function fetchUserDetailsAndLoans() {
     type: "GET",
     url:
       baseURL +
+      // institution +
       "/almaws/v1/users/" +
       $("#userid").val() +
       "?expand=loans,requests,fees&format=json&limit=100",
@@ -314,7 +335,13 @@ function renewLoan(loanId) {
   $.ajax({
     type: "POST",
     url:
-      baseURL + "/almaws/v1/users/" + userId + "/loans/" + loanId + "?op=renew",
+      baseURL +
+      // institution +
+      "/almaws/v1/users/" +
+      userId +
+      "/loans/" +
+      loanId +
+      "?op=renew",
     contentType: "application/xml",
     data:
       "<?xml version='1.0' encoding='UTF-8'?><renew_loan><circ_desk>" +
@@ -328,7 +355,13 @@ function renewLoan(loanId) {
       // Make a new GET request to fetch the updated loan data to fix bug of not seeing immediatly
       $.ajax({
         type: "GET",
-        url: baseURL + "/almaws/v1/users/" + userId + "/loans/" + loanId,
+        url:
+          baseURL +
+          // institution +
+          "/almaws/v1/users/" +
+          userId +
+          "/loans/" +
+          loanId,
         contentType: "application/json",
         dataType: "json",
       })
@@ -379,11 +412,3 @@ function logout() {
 $(document).ready(function () {
   $("#userid").focus();
 });
-
-// function keepSessionActive() {
-//     setInterval(() => {
-//         console.log("Keeping the session active");
-//     }, 2 * 60 * 1000); // 2 minutes in milliseconds
-// }
-
-// keepSessionActive();
