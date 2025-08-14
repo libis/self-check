@@ -4,13 +4,13 @@ console.log("baseURL", baseURL);
 
 var libraryName = "RBIB";
 
-// var institution = "kuleuven";
+var institution = "kuleuven";
 
 // check if the pathname includes 'vlerick'
-// if (window.location.pathname.toLowerCase().includes("vlerick")) {
-//   libraryName = "VBS";
-//   institution = "vlerick";
-// }
+if (window.location.pathname.toLowerCase().includes("vlerick")) {
+  libraryName = "VBS";
+  institution = "vlerick";
+}
 console.log("libraryName", libraryName);
 var circDesk = "DEFAULT_CIRC_DESK";
 
@@ -18,21 +18,31 @@ function initiate() {
   getModalBox();
   /////////////////////////////////////////////////////////////////////////////////////////////
   // Add institution as a class to .toptoolbar
-  // var topToolbar = document.querySelector(".toptoolbar");
-  // if (topToolbar) {
-  //   topToolbar.className = "toptoolbar " + institution;
-  //   // or topToolbar.classList.add(institution);
-  // }
+  var topToolbar = document.querySelector(".toptoolbar");
+  if (topToolbar) {
+    topToolbar.className = "toptoolbar " + institution;
+    // or topToolbar.classList.add(institution);
+  }
 
-  // Optional: change logo dynamically too
-  // var logoImg = document.querySelector(".logo img");
-  // if (logoImg && institution === "vlerick") {
-  //   logoImg.src = "images/vlericklogo.png";
-  // } else {
-  //   logoImg.src = "images/vlericklogo.png";
-  //   // "images/libisnewkuljr.png"; // default logo
-  // }
+  // change logo dynamically too
+  var logoImg = document.querySelector(".logo img");
+  if (logoImg && institution === "vlerick") {
+    logoImg.src = "images/vlericklogo.png";
+  } else {
+    logoImg.src = "images/libisnewkuljr.png"; // default logo
+  }
 
+  // change from blue to black background color
+
+  var h1Title = document.querySelector(".maincontent .h1title");
+  if (h1Title && institution === "vlerick") {
+    h1Title.classList.add("vlerickclass");
+  }
+
+  var h1Title = document.getElementById("scanboxtitle");
+  if (h1Title && institution === "vlerick") {
+    h1Title.classList.add("vlerickclass");
+  }
   /////////////////////////////////////////////////////////////////////////////////////////////
 
   $("#barcode").bind("keypress", function (e) {
@@ -124,7 +134,8 @@ function login() {
       type: "GET",
       url:
         baseURL +
-        // institution +
+        "/" +
+        institution +
         "/almaws/v1/users/" +
         $("#userid").val() +
         "?expand=loans,requests,fees&format=json&limit=100", // added limit to 100 (default == 10)
@@ -142,6 +153,15 @@ function login() {
         $("#userrequests").text(data.requests.value);
         $("#userfees").text("€ " + data.fees.value);
 
+        // Add Vlerick styling after loggin
+        var h1Title = document.querySelector(".maincontent .h1title");
+        if (h1Title && institution === "vlerick") {
+          h1Title.classList.add("vlerickclass");
+        }
+        var h1Title = document.getElementById("scanboxtitle");
+        if (h1Title && institution === "vlerick") {
+          h1Title.classList.add("vlerickclass");
+        }
         $("#loanstable").find("tr:gt(0)").remove();
 
         // Fetch loan details
@@ -219,7 +239,8 @@ function loan() {
       type: "POST",
       url:
         baseURL +
-        // institution +
+        "/" +
+        institution +
         "/almaws/v1/users/" +
         user.primary_id +
         "/loans?user_id_type=all_unique&item_barcode=" +
@@ -270,7 +291,8 @@ function fetchUserDetailsAndLoans() {
     type: "GET",
     url:
       baseURL +
-      // institution +
+      "/" +
+      institution +
       "/almaws/v1/users/" +
       $("#userid").val() +
       "?expand=loans,requests,fees&format=json&limit=100",
@@ -286,7 +308,13 @@ function fetchUserDetailsAndLoans() {
       $("#userloans").text(data.loans.value);
       $("#userrequests").text(data.requests.value);
       $("#userfees").text("€ " + data.fees.value);
-      $("#loanstable").find("tr:gt(0)").remove();
+      // Add Vlerick styling after
+      var h1Title = document.querySelector(".maincontent .h1title");
+      if (h1Title && institution === "vlerick") {
+        h1Title.classList.add("vlerickclass");
+      }
+
+      "#loanstable".find("tr:gt(0)").remove();
 
       $.ajax({
         type: "GET",
@@ -336,7 +364,8 @@ function renewLoan(loanId) {
     type: "POST",
     url:
       baseURL +
-      // institution +
+      "/" +
+      institution +
       "/almaws/v1/users/" +
       userId +
       "/loans/" +
@@ -357,7 +386,8 @@ function renewLoan(loanId) {
         type: "GET",
         url:
           baseURL +
-          // institution +
+          "/" +
+          institution +
           "/almaws/v1/users/" +
           userId +
           "/loans/" +
