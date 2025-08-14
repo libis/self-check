@@ -33,6 +33,26 @@ textarea {
 }
 
 /* TOP TOOLBAR */
+/* .toptoolbar.kuleuven {
+  height: 62px;
+  width: 100%;
+
+  background: #ededed;
+
+  background: -webkit-linear-gradient(#ffffff, #ededed);
+  background: -o-linear-gradient(#ffffff, #ededed);
+  background: -moz-linear-gradient(#ffffff, #ededed);
+  background: linear-gradient(#ffffff, #ededed);
+
+  border-bottom: 1px solid #909090;
+  box-shadow: 0px 3px 5px 0px #acacac;
+}
+
+.toptoolbar.kuleuven .logo {
+  padding-top: 4px;
+  margin-left: 10px;
+  text-align: center;
+} */
 .toptoolbar {
   height: 62px;
   width: 100%;
@@ -52,6 +72,21 @@ textarea {
   padding-top: 4px;
   margin-left: 10px;
   text-align: center;
+}
+
+.toptoolbar.vlerick {
+  height: 62px;
+  width: 100%;
+
+  background: #0d0d0d;
+
+  background: -webkit-linear-gradient(#0d0d0d, #0d0d0d);
+  background: -o-linear-gradient(#0d0d0d, #0d0d0d);
+  background: -moz-linear-gradient(#0d0d0d, #0d0d0d);
+  background: linear-gradient(#0d0d0d, #0d0d0d);
+
+  border-bottom: 1px solid #909090;
+  box-shadow: 0px 3px 5px 0px #acacac;
 }
 
 .toptoolbar.vlerick .logo {
@@ -93,6 +128,7 @@ textarea {
   background: -o-linear-gradient(#14436c, #1c5d97);
   background: -moz-linear-gradient(#14436c, #1c5d97);
   background: linear-gradient(#14436c, #1c5d97);
+
   /* background: -webkit-linear-gradient(#000000, #000000);
   background: -o-linear-gradient(#000000, #000000);
   background: -moz-linear-gradient(#000000, #000000);
@@ -102,26 +138,7 @@ textarea {
   border-radius: 15px 15px 0px 0px;
   font-size: 140%;
 }
-.vlerickclass {
-  background: #000000;
-}
-.maincontent .h1title.vlerickclass {
-  padding: 20px;
-  background: #000000;
 
-  /* background: -webkit-linear-gradient(#14436c, #1c5d97);
-  background: -o-linear-gradient(#14436c, #1c5d97);
-  background: -moz-linear-gradient(#14436c, #1c5d97);
-  background: linear-gradient(#14436c, #1c5d97); */
-  background: -webkit-linear-gradient(#000000, #000000);
-  background: -o-linear-gradient(#000000, #000000);
-  background: -moz-linear-gradient(#000000, #000000);
-  background: linear-gradient(#000000, #000000);
-  color: #ffffff;
-  font-weight: bold;
-  border-radius: 15px 15px 0px 0px;
-  font-size: 140%;
-}
 .maincontent .h2title {
   font-size: 120%;
   font-weight: bold;
