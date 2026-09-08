@@ -1,38 +1,56 @@
-// var baseURL = "https://services.libis.be";
 var baseURL = window.location.origin;
 console.log("baseURL", baseURL);
 
+var path = window.location.pathname.toLowerCase();
+
 var libraryName = "RBIB";
-
-// var institution = "kuleuven";
-
-// check if the pathname includes 'vlerick'
-// if (window.location.pathname.toLowerCase().includes("vlerick")) {
-//   libraryName = "VBS";
-//   institution = "vlerick";
-// }
-console.log("libraryName", libraryName);
+var institution = "kuleuven";
 var circDesk = "DEFAULT_CIRC_DESK";
+
+// match exact pathnames
+if (path === "/self-check-vlerick/") {
+  libraryName = "VBS";
+  institution = "vlerick";
+  circDesk = "ZU";
+} else if (path === "/self-check-vlerick-br/") {
+  libraryName = "BRU";
+  institution = "vlerick";
+  circDesk = "BZU";
+}
+
+console.log("libraryName", libraryName);
+console.log("institution", institution);
+console.log("circDesk", circDesk);
 
 function initiate() {
   getModalBox();
   /////////////////////////////////////////////////////////////////////////////////////////////
   // Add institution as a class to .toptoolbar
-  // var topToolbar = document.querySelector(".toptoolbar");
-  // if (topToolbar) {
-  //   topToolbar.className = "toptoolbar " + institution;
-  //   // or topToolbar.classList.add(institution);
-  // }
+  var topToolbar = document.querySelector(".toptoolbar");
+  if (topToolbar) {
+    topToolbar.className = "toptoolbar " + institution;
+    // or topToolbar.classList.add(institution);
+  }
 
-  // Optional: change logo dynamically too
-  // var logoImg = document.querySelector(".logo img");
-  // if (logoImg && institution === "vlerick") {
-  //   logoImg.src = "images/vlericklogo.png";
-  // } else {
-  //   logoImg.src = "images/vlericklogo.png";
-  //   // "images/libisnewkuljr.png"; // default logo
-  // }
+  // change logo dynamically too
+  var logoImg = document.querySelector(".logo img");
+  if (logoImg && institution === "vlerick") {
+    logoImg.src = "images/vlericklogo.png";
+  } else {
+    logoImg.src = "images/libisnewkuljr.png"; // default logo
+  }
 
+  // change from blue to black background color
+
+  var h1Title = document.querySelector(".maincontent .h1title");
+  if (h1Title && institution === "vlerick") {
+    h1Title.classList.add("vlerickclass");
+  }
+
+  var h1Title = document.getElementById("scanboxtitle");
+  if (h1Title && institution === "vlerick") {
+    h1Title.classList.add("vlerickclass");
+  }
   /////////////////////////////////////////////////////////////////////////////////////////////
 
   $("#barcode").bind("keypress", function (e) {
@@ -66,15 +84,6 @@ function getModalBox() {
   span.onclick = function () {
     $("#myModal").hide();
   };
-
-  // When the user clicks anywhere outside of the modal, close it
-  /*
-	window.onclick = function(event) {
-	    if (event.target == modal) {
-	    	$("#myModal").hide();
-	    }
-	}
-	*/
 }
 
 function returnToBarcode() {
@@ -133,7 +142,8 @@ function login() {
       type: "GET",
       url:
         baseURL +
-        // institution +
+        "/" +
+        institution +
         "/almaws/v1/users/" +
         $("#userid").val() +
         "?expand=loans,requests,fees&format=json&limit=100", // added limit to 100 (default == 10)
@@ -145,17 +155,32 @@ function login() {
         user = data;
         // Prepare scan box
         $("#scanboxtitle").text(
-          "Welcome " + data.first_name + " " + data.last_name
+          "Welcome " + data.first_name + " " + data.last_name,
         );
         $("#userloans").text(data.loans.value);
         $("#userrequests").text(data.requests.value);
-        $("#userfees").text("€ " + data.fees.value);
+        $("#userfees").text("â‚¬ " + data.fees.value);
 
+        // Add Vlerick styling after loggin
+        var h1Title = document.querySelector(".maincontent .h1title");
+        if (h1Title && institution === "vlerick") {
+          h1Title.classList.add("vlerickclass");
+        }
+        var h1Title = document.getElementById("scanboxtitle");
+        if (h1Title && institution === "vlerick") {
+          h1Title.classList.add("vlerickclass");
+        }
         $("#loanstable").find("tr:gt(0)").remove();
 
         // Fetch loan details
 
+        // let loanUrl = data.loans.link;
+        // loanUrl += (loanUrl.includes("?") ? "&" : "?") + "limit=100";
+
         let loanUrl = data.loans.link;
+        if (!loanUrl.includes("/" + institution + "/")) {
+          loanUrl = loanUrl.replace("/almaws/", "/" + institution + "/almaws/");
+        }
         loanUrl += (loanUrl.includes("?") ? "&" : "?") + "limit=100";
 
         $.ajax({
@@ -186,7 +211,7 @@ function login() {
                   loan.loan_id +
                   "\")'>" +
                   renewButtonText +
-                  "</button></td></tr>"
+                  "</button></td></tr>",
               );
               returnToBarcode();
             });
@@ -228,7 +253,8 @@ function loan() {
       type: "POST",
       url:
         baseURL +
-        // institution +
+        "/" +
+        institution +
         "/almaws/v1/users/" +
         user.primary_id +
         "/loans?user_id_type=all_unique&item_barcode=" +
@@ -262,7 +288,11 @@ function loan() {
         console.log(jqxhr.responseText);
         $("#modalheader").text("");
         $("#modalheader").append(
-          "Something went wrong.<br/><br/>Please consult the library information desk for more information<br/><br/><input class='modalclose' type='button' value='close' id='barcodeerrorbutton' onclick='javascript:returnToBarcode();'/>"
+          `Something went wrong.<br/><br/> ${
+            libraryName === "VBS"
+              ? "Contact someone from reception services for help."
+              : "Please consult the library information desk for more information"
+          } <br/><br/><input class='modalclose' type='button' value='close' id='barcodeerrorbutton' onclick='javascript:returnToBarcode();'/>`,
         );
         $("#barcodeerrorbutton").focus();
 
@@ -279,7 +309,8 @@ function fetchUserDetailsAndLoans() {
     type: "GET",
     url:
       baseURL +
-      // institution +
+      "/" +
+      institution +
       "/almaws/v1/users/" +
       $("#userid").val() +
       "?expand=loans,requests,fees&format=json&limit=100",
@@ -290,16 +321,28 @@ function fetchUserDetailsAndLoans() {
     .done(function (data) {
       user = data;
       $("#scanboxtitle").text(
-        "Welcome " + data.first_name + " " + data.last_name
+        "Welcome " + data.first_name + " " + data.last_name,
       );
       $("#userloans").text(data.loans.value);
       $("#userrequests").text(data.requests.value);
-      $("#userfees").text("€ " + data.fees.value);
+      $("#userfees").text("â‚¬ " + data.fees.value);
+      // add Vlerick styling after
+      var h1Title = document.querySelector(".maincontent .h1title");
+      if (h1Title && institution === "vlerick") {
+        h1Title.classList.add("vlerickclass");
+      }
+
       $("#loanstable").find("tr:gt(0)").remove();
 
       $.ajax({
         type: "GET",
-        url: data.loans.link,
+        url:
+          baseURL +
+          "/" +
+          institution +
+          "/almaws/v1/users/" +
+          user.primary_id +
+          "/loans?limit=100",
         contentType: "text/plain",
         dataType: "json",
         crossDomain: true,
@@ -321,7 +364,7 @@ function fetchUserDetailsAndLoans() {
                 loan.loan_id +
                 "\")'>" +
                 renewButtonText +
-                "</button></td></tr>"
+                "</button></td></tr>",
             );
             returnToBarcode();
           });
@@ -345,7 +388,8 @@ function renewLoan(loanId) {
     type: "POST",
     url:
       baseURL +
-      // institution +
+      "/" +
+      institution +
       "/almaws/v1/users/" +
       userId +
       "/loans/" +
@@ -364,10 +408,10 @@ function renewLoan(loanId) {
       // Make a new GET request to fetch the updated loan data to fix bug of not seeing immediatly
       $.ajax({
         type: "GET",
-        url: baseURL + "/almaws/v1/users/" + userId + "/loans/" + loanId,
         url:
           baseURL +
-          // institution +
+          "/" +
+          institution +
           "/almaws/v1/users/" +
           userId +
           "/loans/" +
@@ -422,11 +466,3 @@ function logout() {
 $(document).ready(function () {
   $("#userid").focus();
 });
-
-// function keepSessionActive() {
-//     setInterval(() => {
-//         console.log("Keeping the session active");
-//     }, 2 * 60 * 1000); // 2 minutes in milliseconds
-// }
-
-// keepSessionActive();
